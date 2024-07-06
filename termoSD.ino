@@ -1,6 +1,11 @@
+// SD
 #include <SD.h>
+// for RTC
 #include <Wire.h>
+// RTC
 #include <DS3231.h>
+// digital thermo and humidity
+#include <DHT11.h>
 
 const int CS = 8;
 const int TEMP = 0;
@@ -11,6 +16,7 @@ float voltage, degreesC;
 
 RTClib myRTC;
 DS3231 rtc;
+DHT11 dht11(2);
 
 String year, month, day, hour, minute, second, date, stime;
 
@@ -38,13 +44,23 @@ void loop() {
   voltage = val * 0.004882814;
   degreesC = (voltage - 0.5) * 100.0;
 
+  // DHT
+  int temperature = 0;
+  int humidity = 0;
+  int result = dht11.readTemperatureHumidity(temperature, humidity);
+  // DHT
+
   Serial.print("val: ");
   Serial.print(val);
   Serial.print(", voltage: ");
   Serial.print(voltage);
   Serial.print(", degreesC: ");
-  Serial.println(degreesC);
-  Serial.println(hour);
+  Serial.print(degreesC);
+  Serial.print(", temperature: ");
+  Serial.print(temperature);
+  Serial.print(", humidity: ");
+  Serial.println(humidity);
+  Serial.print(hour);
   Serial.println(minute);
   year = String(now.year(), DEC);
   month = String(now.month(), DEC);
@@ -63,11 +79,16 @@ void loop() {
     dataFile.print(",");
     dataFile.print(val);
     dataFile.print(",");
-    dataFile.println(voltage);
+    dataFile.print(voltage);
+    dataFile.print(",");
+    dataFile.print(temperature);
+    dataFile.print(",");
+    dataFile.println(humidity);
     dataFile.close();
   } else {
     Serial.println("Couldn't open log file");
   }
-  delay(600000);
+  //delay(600000);
+  delay(6000);
 
 }
