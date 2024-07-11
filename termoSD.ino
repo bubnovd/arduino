@@ -8,6 +8,7 @@
 #include <DHT11.h>
 
 const int CS = 8;
+// sensor tmp36gz
 const int TEMP = 0;
 // const int SDA = A4;
 // const int SCL = A5;
@@ -21,6 +22,7 @@ DHT11 dht11(2);
 String year, month, day, hour, minute, second, date, stime;
 
 void setup() {
+  analogReference(EXTERNAL);
   Wire.begin();
   Serial.begin(9600);
   while (!Serial) {
@@ -39,9 +41,10 @@ void loop() {
   File dataFile = SD.open("log.csv", FILE_WRITE);
   DateTime now = myRTC.now();
   val = analogRead(TEMP);
-  // Correct to external power
-  val -= 50;
-  voltage = val * 0.004882814;
+  //voltage = val * 0.004882814;
+  // Correct to external power 3.78 V
+  voltage = val * 0.003691406;
+  // [(Vout in mV) - 500] / 10
   degreesC = (voltage - 0.5) * 100.0;
 
   // DHT
@@ -50,6 +53,8 @@ void loop() {
   int result = dht11.readTemperatureHumidity(temperature, humidity);
   // DHT
 
+  Serial.print("volt: ");
+  Serial.print(analogRead(1));
   Serial.print("val: ");
   Serial.print(val);
   Serial.print(", voltage: ");
@@ -88,7 +93,7 @@ void loop() {
   } else {
     Serial.println("Couldn't open log file");
   }
-  //delay(600000);
-  delay(6000);
+  delay(600000);
+  //delay(6000);
 
 }
